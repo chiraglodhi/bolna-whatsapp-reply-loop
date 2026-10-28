@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "intent": { "type": "string", "enum": ["CONFIRM", "RESCHEDULE", "QUESTION", "OBJECTION", "ESCALATE"] },
+    "confidence": { "type": "number" },
+    "details": {
+      "type": "object",
+      "properties": {
+        "requested_date_text": { "type": ["string", "null"] },
+        "requested_time_text": { "type": ["string", "null"] },
+        "reason": { "type": "string" },
+        "needs_clarification": { "type": "boolean" }
+      },
+      "required": ["requested_date_text", "requested_time_text", "reason", "needs_clarification"],
+      "additionalProperties": false
+    },
+    "suggested_reply": { "type": "string" },
+    "requires_human": { "type": "boolean" }
+  },
+  "required": ["intent", "confidence", "details", "suggested_reply", "requires_human"],
+  "additionalProperties": false
+}

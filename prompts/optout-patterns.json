@@ -1,0 +1,20 @@
+{
+  "_note": "Rule-based opt-out detection, no AI. Applied in WF2 (node 'Opt-Out Check') to the reply after lowercasing, removing apostrophes, and collapsing non-alphanumerics to single spaces. Covers English and Roman-script Hinglish. Not validated on real customers. Devanagari-script text is NOT matched (see prompts/README.md).",
+  "patterns": [
+    { "label": "stop messaging/texting/contacting", "regex": "\\bstop (messaging|texting|contacting|sending)\\b" },
+    { "label": "unsubscribe", "regex": "\\bunsubscribe\\b" },
+    { "label": "opt out", "regex": "\\bopt ?out\\b" },
+    { "label": "dont contact/message me", "regex": "\\b(dont|do not) (contact|message|msg|text) me\\b" },
+    { "label": "remove me / remove my number", "regex": "\\bremove (me|my number)\\b" },
+    { "label": "leave me alone", "regex": "\\bleave me alone\\b" },
+    { "label": "mat bhejo/bhejna", "regex": "\\bmat (bhejo|bhejna|bhejiye)\\b" },
+    { "label": "message/msg mat karo", "regex": "\\b(message|msg) mat (karo|karna|kijiye)\\b" },
+    { "label": "call mat karo", "regex": "\\bcall mat (karo|karna|kijiye)\\b" },
+    { "label": "contact mat karo", "regex": "\\bcontact mat (karo|karna|kijiye)\\b" },
+    { "label": "pareshan/tang/disturb mat karo", "regex": "\\b(pareshan|tang|disturb) mat (karo|karna|kijiye)\\b" },
+    { "label": "message/msg band karo", "regex": "\\b(message|msg) band (karo|karna|kar do|kardo)\\b" },
+    { "label": "list se hata do", "regex": "\\blist se (hata do|hatao|hata dijiye|nikal do)\\b" },
+    { "label": "number hata do/delete karo", "regex": "\\bnumber (hata do|hatao|delete karo|delete kar do|delete kardo)\\b" },
+    { "label": "message nahi chahiye", "regex": "\\b(message|msg) (nahi|nhi|nai) chahiye\\b" }
+  ]
+}

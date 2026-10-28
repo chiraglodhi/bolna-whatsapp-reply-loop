@@ -1,0 +1,21 @@
+Call transcript:
+---
+{{transcript}}
+---
+
+Call summary:
+---
+{{summary}}
+---
+
+Answers extracted from the call:
+---
+{{extracted_answers}}
+---
+
+Customer's WhatsApp reply:
+---
+{{customer_reply}}
+---
+
+Classify this reply.

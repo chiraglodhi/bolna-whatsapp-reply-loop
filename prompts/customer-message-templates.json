@@ -1,0 +1,21 @@
+{
+  "_note": "Every customer-facing message is a fixed template. Model output (including suggested_reply) is stored for humans and is never sent to the customer.",
+  "post_call_followup": {
+    "_sent_by": "WF1",
+    "completed_with_conversation": "Hi! Thank you for speaking with us. We wanted to follow up on our conversation. If you have any questions or would like to proceed, just reply to this message and we'll get back to you shortly.",
+    "no-answer": "Hi! We tried reaching you by phone but couldn't connect. We'd love to chat. Reply here if there's a better time to call, or let us know how we can help.",
+    "busy": "Hi! We tried calling but it seems you were busy. Reply here with a good time to call back."
+  },
+  "reply_response": {
+    "_sent_by": "WF2",
+    "CONFIRM": "Great news! Thank you for confirming. Our team will reach out shortly to finalize the next steps.",
+    "RESCHEDULE": "Thank you! We've noted that you'd like a different time. Our team will confirm a new schedule with you shortly.",
+    "QUESTION": "Thank you for your question! Our team will get back to you with the details shortly.",
+    "OBJECTION": "We understand your concern. Our team will reach out to address this personally.",
+    "ESCALATE": "Thank you for your message. A team member will get back to you shortly."
+  },
+  "opt_out_confirmation": {
+    "_sent_by": "WF2",
+    "text": "Understood, we've noted your request. You won't receive any more automated WhatsApp messages from us."
+  }
+}
