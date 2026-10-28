@@ -129,7 +129,7 @@ Slack posting is shared: every alert goes through `Build Alert` (formats the mes
 
 ### Alert routing
 
-Alerts go to one Slack channel. They are built in code, from validated fields only. Types: `HOT LEAD` (CONFIRM), `ESCALATION`, `RESCHEDULE`, `OBJECTION`, `QUESTION` (only when the model flags it for a human), `FALLBACK`, `UNKNOWN SENDER`, `OPT-OUT`, `CALL FAILURE`, and `ERROR` for failed nodes or invalid input. Each alert includes the phone number and, for reply alerts, up to 200 characters of the customer's message. Full transcripts and credentials are never posted.
+Alerts go to one Slack channel. They are built in code from stored fields, the validated classification (including the model's short free-text reason) and a truncated copy of the reply. Types: `HOT LEAD` (CONFIRM), `ESCALATION`, `RESCHEDULE`, `OBJECTION`, `QUESTION` (only when the model flags it for a human), `FALLBACK`, `UNKNOWN SENDER`, `OPT-OUT`, `CALL FAILURE`, and `ERROR` for failed nodes or invalid input. Each alert includes the phone number and, for reply alerts, up to 200 characters of the customer's message. Full transcripts and credentials are never posted.
 
 ## Trust boundaries and controls
 
