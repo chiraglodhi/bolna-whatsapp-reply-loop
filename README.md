@@ -101,7 +101,7 @@ This is a hardened prototype: it handles the main path, common error cases and d
 
 ## Setup
 
-These steps have not been run end to end on a clean instance.
+Step 1 was tested: the schema applies without errors to a blank PostgreSQL 16 database, and its constraints and trigger behave as designed. Steps 2 to 6 have not been run on a clean n8n instance.
 
 1. Create a Supabase project and run [`database/schema.sql`](database/schema.sql).
 2. In n8n, create the credentials and variables listed in [`.env.example`](.env.example).
