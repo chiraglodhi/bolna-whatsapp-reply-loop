@@ -1,6 +1,6 @@
 # Architecture
 
-This is a proposed proof of concept. It is not an official Bolna integration.
+This is a proposed proof of concept demonstrating how Bolna's post-call WhatsApp gap could be filled. It is not an official Bolna integration.
 
 The system closes one gap: after a Bolna voice call, a WhatsApp follow-up goes out, but nothing handles the customer's reply. Two n8n workflows cover it. WF1 records each finished call and sends the follow-up. WF2 receives the reply, decides what it means, answers with a fixed template and alerts a human when needed.
 

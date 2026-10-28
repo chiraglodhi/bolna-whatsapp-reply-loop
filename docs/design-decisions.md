@@ -1,6 +1,6 @@
 # Design decisions
 
-This is a proposed proof of concept. It is not an official Bolna integration.
+This is a proposed proof of concept demonstrating how Bolna's post-call WhatsApp gap could be filled. It is not an official Bolna integration.
 
 Each entry says what was decided, why, what the alternative was, and what the decision costs. "Observed" means seen in testing on this project's trial accounts; the sample is small and the Limitations section of the README says so.
 
@@ -124,3 +124,10 @@ Each entry says what was decided, why, what the alternative was, and what the de
 ### 23. Reply handling stays in one place, alerts go through one formatter
 - **Decision:** every alert in each workflow passes through a single Build Alert node and a single Slack node.
 - **Why:** one format (type, phone, workflow, details, time, action needed) and one place to change it. Reply alerts show the classification, the model's short stated reason, any requested date or time text, and a truncated copy of the customer's reply. The reason and reply are free text, so they are display-only.
+
+## Author's reasons
+
+Two choices came down to the author's circumstances rather than to a technical comparison. They are stated here in the author's own words.
+
+- **OpenAI for classification.** "I chose the OpenAI API for classification because I already had enough credits in my OpenAI account." Nothing in the design depends on this choice: decision 15 keeps the provider behind an adapter, so changing it means changing the HTTP call and the line that reads the answer.
+- **n8n instead of writing code.** "I used n8n because it is an orchestration platform and it makes it easy to build what I need."
