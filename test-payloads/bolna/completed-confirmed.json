@@ -1,0 +1,53 @@
+{
+  "_note": "CONSTRUCTED EXAMPLE, not a captured payload. Field names follow Bolna's public execution-payload docs and what WF1 reads; every value is invented.",
+  "id": "00000000-0000-0000-0000-000000000001",
+  "agent_id": "00000000-0000-0000-0000-0000000000a1",
+  "batch_id": null,
+  "campaign_id": null,
+  "status": "completed",
+  "smart_status": null,
+  "error_message": null,
+  "conversation_duration": 48,
+  "answered_by_voice_mail": false,
+  "user_number": "+910000000001",
+  "agent_number": "+910000000002",
+  "provider": "vobiz",
+  "transcript": "assistant: Hello, this is a call about your appointment on Thursday. Can you confirm it?\nuser:  yes I confirm, Thursday at 11:30 works\nassistant: Great, I have noted that. Thank you.",
+  "summary": "The user confirmed the Thursday appointment at 11:30.",
+  "extracted_data": {
+    "General": {
+      "Call Summary": {
+        "subjective": "The user confirmed the Thursday appointment at 11:30."
+      }
+    },
+    "Appointment": {
+      "appointment_confirmed": {
+        "objective": "yes",
+        "confidence": 1,
+        "confidence_label": "High",
+        "subjective": null,
+        "validation": null,
+        "reasoning_objective": "The customer said they confirm the appointment.",
+        "reasoning_subjective": null
+      }
+    }
+  },
+  "telephony_data": {
+    "duration": 48,
+    "to_number": "+910000000001",
+    "from_number": "+910000000002",
+    "recording_url": "https://example.invalid/recordings/call/00000000-0000-0000-0000-000000000001",
+    "call_type": "outbound",
+    "hangup_by": "Callee",
+    "hangup_reason": "Call recipient hungup",
+    "hangup_provider_code": 4000
+  },
+  "total_cost": 6,
+  "context_details": {
+    "recipient_phone_number": "+910000000001",
+    "recipient_data": {
+      "timezone": "Asia/Kolkata"
+    }
+  },
+  "retry_count": 0
+}

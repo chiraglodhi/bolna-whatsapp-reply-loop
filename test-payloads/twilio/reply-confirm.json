@@ -1,0 +1,21 @@
+{
+  "_note": "CONSTRUCTED EXAMPLE, not a captured request. 'body' and 'headers' mirror what the n8n webhook node passes to WF2 ($json.body, $json.headers). The signature is a placeholder, so WF2's signature check will reject this as-is; a real request must be signed with your own auth token.",
+  "headers": {
+    "x-twilio-signature": "SYNTHETIC-NOT-A-VALID-SIGNATURE"
+  },
+  "body": {
+    "MessageSid": "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX01",
+    "SmsMessageSid": "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX01",
+    "SmsSid": "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX01",
+    "AccountSid": "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "From": "whatsapp:+910000000001",
+    "To": "whatsapp:+14155238886",
+    "Body": "Yes, please go ahead.",
+    "ProfileName": "Test User",
+    "WaId": "910000000001",
+    "NumMedia": "0",
+    "NumSegments": "1",
+    "SmsStatus": "received",
+    "MessageType": "text"
+  }
+}

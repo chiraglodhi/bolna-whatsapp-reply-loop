@@ -1,0 +1,36 @@
+{
+  "_note": "CONSTRUCTED EXAMPLE, not a captured payload. Field names follow Bolna's public execution-payload docs and what WF1 reads; every value is invented.",
+  "id": "00000000-0000-0000-0000-000000000006",
+  "agent_id": "00000000-0000-0000-0000-0000000000a1",
+  "batch_id": null,
+  "campaign_id": null,
+  "status": "failed",
+  "smart_status": null,
+  "error_message": "Example error text (invented)",
+  "conversation_duration": 12,
+  "answered_by_voice_mail": null,
+  "user_number": "+910000000001",
+  "agent_number": "+910000000002",
+  "provider": "vobiz",
+  "transcript": null,
+  "summary": null,
+  "extracted_data": null,
+  "telephony_data": {
+    "duration": 12,
+    "to_number": "+910000000001",
+    "from_number": "+910000000002",
+    "recording_url": null,
+    "call_type": "outbound",
+    "hangup_by": null,
+    "hangup_reason": null,
+    "hangup_provider_code": null
+  },
+  "total_cost": 0,
+  "context_details": {
+    "recipient_phone_number": "+910000000001",
+    "recipient_data": {
+      "timezone": "Asia/Kolkata"
+    }
+  },
+  "retry_count": 0
+}
