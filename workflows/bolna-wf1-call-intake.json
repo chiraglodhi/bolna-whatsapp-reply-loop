@@ -1,0 +1,814 @@
+{
+  "name": "Bolna WF1 — Call Intake",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bolna-call-intake",
+        "options": {}
+      },
+      "id": "ad08fa1f-9c84-4d7e-a800-bcd87c27f7ff",
+      "name": "Bolna Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ [\"completed\",\"no-answer\",\"busy\",\"failed\",\"canceled\",\"stopped\",\"error\",\"balance-low\"].includes($json.body?.status ?? $json.status) }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "id": "73adff76-aef3-4d7c-aca0-2bcc774bbd21"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "42929226-5953-4ecb-9e60-cc53e2dd964c",
+      "name": "Is Terminal Status?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nconst required = ['id', 'status', 'user_number'];\nconst missing = required.filter(function (f) { return !body[f]; });\nif (missing.length > 0) {\n  return [{ json: { valid: false, error: 'Missing required fields: ' + missing.join(', '), raw_body: body } }];\n}\nlet phone = String(body.user_number || '').replace(/[^+0-9]/g, '');\nif (phone && !phone.startsWith('+')) phone = '+' + phone;\nconst td = body.telephony_data || {};\nreturn [{ json: {\n  valid: true,\n  execution_id: body.id,\n  agent_id: body.agent_id || '',\n  batch_id: body.batch_id || null,\n  status: body.status,\n  smart_status: body.smart_status || null,\n  error_message: body.error_message || null,\n  conversation_duration: Number(body.conversation_duration) || 0,\n  answered_by_voice_mail: body.answered_by_voice_mail === true,\n  customer_phone: phone,\n  agent_phone: body.agent_number || null,\n  transcript: body.transcript || '',\n  summary: body.summary || null,\n  extracted_data: body.extracted_data || {},\n  telephony_provider: body.provider || null,\n  hangup_by: td.hangup_by || null,\n  hangup_reason: td.hangup_reason || null,\n  recording_url: td.recording_url || null,\n  total_cost_cents: Math.round(Number(body.total_cost) || 0)\n} }];"
+      },
+      "id": "6d12f1f3-ca85-4162-a00e-d35418d9b817",
+      "name": "Validate Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.valid === true }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6e134e66-d618-4290-9395-842e28240a17",
+      "name": "Payload Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://<YOUR_SUPABASE_PROJECT_REF>.supabase.co/rest/v1/bolna_call_contexts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "execution_id",
+              "value": "=eq.{{ $json.execution_id }}"
+            },
+            {
+              "name": "select",
+              "value": "id"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "65b9b351-67da-4fc5-880d-d720212ef67b",
+      "name": "Check Duplicate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        896,
+        432
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Bolna - Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ !$json.id }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5c6a95af-c19b-43d1-bddc-e695a0e6ce09",
+      "name": "Is New Call?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1120,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const v = $('Validate Payload').first().json;\nconst data = v.extracted_data || {};\nconst flat = {};\nObject.keys(data).forEach(function (category) {\n  const extractions = data[category];\n  if (extractions && typeof extractions === 'object') {\n    Object.keys(extractions).forEach(function (name) {\n      const x = extractions[name] || {};\n      let val = null;\n      if (x.objective !== undefined && x.objective !== null) val = x.objective;\n      else if (x.subjective !== undefined) val = x.subjective;\n      flat[category + '.' + name] = { value: val, confidence: x.confidence || 0, confidence_label: x.confidence_label || 'Low' };\n    });\n  }\n});\nconst row = {\n  execution_id: v.execution_id,\n  agent_id: v.agent_id,\n  batch_id: v.batch_id,\n  status: v.status,\n  smart_status: v.smart_status,\n  conversation_duration: v.conversation_duration,\n  answered_by_voice_mail: v.answered_by_voice_mail,\n  customer_phone: v.customer_phone,\n  agent_phone: v.agent_phone,\n  transcript: v.transcript,\n  summary: v.summary,\n  extracted_data: v.extracted_data,\n  telephony_provider: v.telephony_provider,\n  hangup_by: v.hangup_by,\n  hangup_reason: v.hangup_reason,\n  recording_url: v.recording_url,\n  total_cost_cents: v.total_cost_cents\n};\nreturn [{ json: Object.assign({}, v, { extracted_data_flat: flat, db_row: row }) }];"
+      },
+      "id": "eb1296e3-f0a3-43de-a296-c193e56f0a62",
+      "name": "Normalize Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://<YOUR_SUPABASE_PROJECT_REF>.supabase.co/rest/v1/bolna_call_contexts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "on_conflict",
+              "value": "execution_id"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation,resolution=merge-duplicates"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.db_row) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "3d2b607b-5a44-45bc-a840-132d5a44aaf4",
+      "name": "Upsert Call Context",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1568,
+        272
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Bolna - Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const c = $('Normalize Payload').first().json;\nconst status = c.status;\nconst duration = c.conversation_duration;\nconst callFailure = (status === 'failed' || status === 'error') && duration > 0;\nlet message = '';\nif (status === 'completed' && duration > 0) {\n  message = \"Hi! Thank you for speaking with us. We wanted to follow up on our conversation. If you have any questions or would like to proceed, just reply to this message and we'll get back to you shortly.\";\n} else if (status === 'no-answer') {\n  message = \"Hi! We tried reaching you by phone but couldn't connect. We'd love to chat. Reply here if there's a better time to call, or let us know how we can help.\";\n} else if (status === 'busy') {\n  message = \"Hi! We tried calling but it seems you were busy. Reply here with a good time to call back.\";\n} else {\n  return [{ json: Object.assign({}, c, { skip_whatsapp: true, call_failure: callFailure, skip_reason: 'Status ' + status + ' (duration ' + duration + ') is not customer-facing' }) }];\n}\nreturn [{ json: Object.assign({}, c, { skip_whatsapp: false, call_failure: false, whatsapp_message: message }) }];"
+      },
+      "id": "1d057d6a-392b-4885-8ac7-c2737bead7d2",
+      "name": "Build WhatsApp Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.skip_whatsapp === false }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "17233227-a060-43ab-85f6-148cefb6c24a",
+      "name": "Send WhatsApp?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2016,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "from": "={{ $vars.TWILIO_SANDBOX_NUMBER }}",
+        "to": "={{ $json.customer_phone }}",
+        "toWhatsapp": true,
+        "message": "={{ $json.whatsapp_message }}",
+        "options": {}
+      },
+      "id": "6e5de605-a2cc-498c-aa10-863ad11f4512",
+      "name": "Send WhatsApp",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        96
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Bolna - Twilio Sandbox"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "https://<YOUR_SUPABASE_PROJECT_REF>.supabase.co/rest/v1/bolna_call_contexts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "execution_id",
+              "value": "=eq.{{ $(\"Normalize Payload\").first().json.execution_id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ whatsapp_sent: true, whatsapp_sent_at: $now.toISO(), whatsapp_message_sid: $json.sid, whatsapp_send_error: null }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "48776c90-19f1-407d-8871-a87fa4e5a46a",
+      "name": "Update Send Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2464,
+        0
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Bolna - Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "https://<YOUR_SUPABASE_PROJECT_REF>.supabase.co/rest/v1/bolna_call_contexts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "execution_id",
+              "value": "=eq.{{ $(\"Normalize Payload\").first().json.execution_id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ whatsapp_sent: false, whatsapp_send_error: String(typeof $json.error === \"string\" ? $json.error : ($json.error?.message || $json.message || \"unknown Twilio error\")).slice(0, 500) }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "2657d941-0f87-47e9-a13d-29c32f865350",
+      "name": "Record Send Failure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2464,
+        192
+      ],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Bolna - Supabase"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const NL = String.fromCharCode(10);\nconst j = $json;\nlet prev = 'unknown node';\ntry { prev = $prevNode.name || prev; } catch (e) { prev = 'unknown node'; }\nlet ctx = {};\nlet v = {};\ntry { ctx = $('Normalize Payload').first().json; } catch (e) { ctx = {}; }\ntry { v = $('Validate Payload').first().json; } catch (e) { v = {}; }\nconst rawBody = v.raw_body || {};\nconst phone = ctx.customer_phone || v.customer_phone || rawBody.user_number || 'unknown';\nconst execId = ctx.execution_id || v.execution_id || rawBody.id || 'unknown';\nlet type = 'ERROR';\nlet desc = '';\nlet details = '';\nlet action = '';\nif (j.valid === false) {\n  desc = 'Invalid Bolna payload';\n  details = String(j.error || 'validation failed');\n  action = 'Open the n8n execution, compare the raw payload to the expected fields, and check PII masking';\n} else if (j.call_failure === true) {\n  type = 'CALL FAILURE';\n  desc = 'Bolna call ' + j.status + ' after ' + j.conversation_duration + 's of conversation';\n  details = 'Call: ' + execId + '. error_message: ' + (j.error_message || 'n/a');\n  action = 'Review the call in the Bolna dashboard';\n} else if (j.whatsapp_send_error) {\n  desc = 'WhatsApp follow-up failed to send';\n  details = 'Call: ' + execId + '. ' + String(j.whatsapp_send_error);\n  action = 'Check sandbox join status (3 days) and the 24h window (Twilio 21608/21610), then resend manually';\n} else {\n  const e = j.error;\n  let msg = 'unknown error, see the n8n execution';\n  if (typeof e === 'string') msg = e;\n  else if (e && e.message) msg = e.message;\n  else if (j.message) msg = j.message;\n  desc = 'Workflow node failed';\n  details = 'Node before this alert: ' + prev + '. Call: ' + execId + '. ' + String(msg).slice(0, 400);\n  action = 'Open the n8n execution and fix the failing node';\n}\nconst text = ['[' + type + '] — ' + desc, 'Phone: ' + phone, 'Workflow: WF1 Call Intake', 'Details: ' + details, 'Time: ' + new Date().toISOString(), 'Action needed: ' + action].join(NL);\nreturn [{ json: { slack_text: text, alert_type: type } }];"
+      },
+      "id": "87831e6b-95f9-4e6b-9336-734fa7d45258",
+      "name": "Build Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.call_failure === true }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0bb2e43e-6319-4b47-931f-da29c7f1fdf0",
+      "name": "Call Failure?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2464,
+        384
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "46df6e12-f044-49c3-8ee0-91adb1150dd6",
+      "name": "No Send Needed",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2688,
+        752
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b6afff0b-080f-4404-a353-7df9b0844ff9",
+      "name": "Skip Duplicate",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        624
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "0d921295-39a4-4814-be47-78687af02c76",
+      "name": "Ignore Non-Terminal",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        448,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "<YOUR_SLACK_CHANNEL_ID>"
+        },
+        "text": "={{ $json.slack_text }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "5be89cbe-6501-4602-884a-8de71cc8f9e5",
+      "name": "Post Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        2912,
+        464
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Slack - Alerts Bot"
+        }
+      }
+    },
+    {
+      "id": "68eff272-389a-4c1c-9be2-a00ffc73d419",
+      "name": "Check Opt-Out",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1792,
+        400
+      ],
+      "parameters": {
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {
+          "timeout": 15000
+        },
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "=eq.{{ $json.customer_phone }}"
+            },
+            {
+              "name": "select",
+              "value": "id"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "url": "https://<YOUR_SUPABASE_PROJECT_REF>.supabase.co/rest/v1/opt_outs"
+      },
+      "onError": "continueErrorOutput",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Bolna - Supabase"
+        }
+      }
+    },
+    {
+      "id": "941294f7-4334-4c2f-a748-a762e481076b",
+      "name": "Apply Opt-Out",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        400
+      ],
+      "parameters": {
+        "jsCode": "const b = $('Build WhatsApp Message').first().json;\nconst found = !!$json.id;\nif (found && b.skip_whatsapp === false) {\n  return [{ json: Object.assign({}, b, { skip_whatsapp: true, call_failure: false, opted_out: true, skip_reason: 'Customer opted out; follow-up not sent' }) }];\n}\nreturn [{ json: Object.assign({}, b, { opted_out: found }) }];"
+      }
+    }
+  ],
+  "connections": {
+    "Bolna Webhook": {
+      "main": [
+        [
+          {
+            "node": "Is Terminal Status?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Terminal Status?": {
+      "main": [
+        [
+          {
+            "node": "Validate Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignore Non-Terminal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Payload": {
+      "main": [
+        [
+          {
+            "node": "Payload Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payload Valid?": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Is New Call?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Call?": {
+      "main": [
+        [
+          {
+            "node": "Normalize Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Payload": {
+      "main": [
+        [
+          {
+            "node": "Upsert Call Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Call Context": {
+      "main": [
+        [
+          {
+            "node": "Build WhatsApp Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp?": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Failure?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Update Send Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Send Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Send Status": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Build Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Send Failure": {
+      "main": [
+        [
+          {
+            "node": "Build Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Alert": {
+      "main": [
+        [
+          {
+            "node": "Post Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Failure?": {
+      "main": [
+        [
+          {
+            "node": "Build Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Send Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build WhatsApp Message": {
+      "main": [
+        [
+          {
+            "node": "Check Opt-Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Opt-Out": {
+      "main": [
+        [
+          {
+            "node": "Apply Opt-Out",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Opt-Out": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
