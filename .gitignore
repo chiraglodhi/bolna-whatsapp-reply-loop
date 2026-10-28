@@ -1,0 +1,28 @@
+# Secrets and local config
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials*.json
+
+# Raw n8n exports that have not been sanitized
+*.raw.json
+raw_*.json
+exports-raw/
+
+# Real captured payloads and local data dumps
+captured/
+real-payloads/
+*.csv
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
