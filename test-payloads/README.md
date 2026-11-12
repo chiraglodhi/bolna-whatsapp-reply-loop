@@ -34,7 +34,7 @@ The classifier outcomes above are expectations, not results: classifier output d
 
 ## What was checked
 
-The expected behaviours in the Bolna table and the opt-out column of the Twilio table were checked by running the workflows' own decision rules (terminal-status list, required-field check, send rules, and the opt-out regexes from `prompts/optout-patterns.json`) over these files in a script. That is a check of the logic, not a run through n8n.
+The expected behaviours in the Bolna table and the opt-out column of the Twilio table were checked by running the workflows' own decision rules (terminal-status list, required-field check, send rules, and the opt-out regexes from `prompts/optout-patterns.json`) over these files during development. The script is not committed. That is a check of the logic, not a run through n8n.
 
 ## Using them
 

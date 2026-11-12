@@ -6,15 +6,17 @@ Catches a customer's WhatsApp reply to a post-call follow-up, works out what the
 
 ## Why I built this
 
-I'm Chirag, a self-taught AI generalist. I'm non-technical, but I'm good at orchestrating AI tools: connecting them and turning them into working workflows. I take Claude's help for the code and use its connectors and MCPs heavily. I also notice patterns in problems and build something that solves them. I studied how Bolna's post-call flow works, read through its documentation, and found a gap: the WhatsApp follow-up goes out, but a customer's reply has nowhere to go. I built this as a hardened prototype, not a throwaway demo, to show how I spot a gap and close it, which is what a founder's office role needs. I'm looking for a founder's office role or an internship, and Bolna is the team I'm most interested in.
+I'm Chirag, a self-taught AI generalist. I'm non-technical, but I'm good at orchestrating AI tools: connecting them and turning them into working workflows. I take Claude's help for the code and use its connectors and MCPs heavily. I also notice patterns in problems and build something that solves them. I studied how Bolna's post-call flow works and read its documentation. The WhatsApp step sends a message, and I could not find a documented way for a customer's reply to start or continue a workflow. I built this to show how that could be handled. I built this as a hardened prototype, not a throwaway demo, to show how I spot a gap and close it, which is what a founder's office role needs. I'm looking for a founder's office role or an internship, and Bolna is the team I'm most interested in.
 
 ## The gap
 
-Bolna's workflow builder includes an AiSensy WhatsApp node. Bolna's documentation describes its branching as "none yet — fire-and-forget, single exit." As of 28 October 2026, I found no node or trigger in the builder that starts from, or branches on, a customer's WhatsApp reply. This project handles that reply outside Bolna: it receives the reply, decides what it means, answers with a fixed template and alerts a person when needed.
+Bolna's workflow builder includes an AiSensy WhatsApp node. Bolna's docs say this node is fire-and-forget with a single exit, meaning it returns no delivery status to branch on. Separately, as of 28 October 2026 I found no node or trigger in the workflow builder that starts from or branches on a customer's reply, and no documentation page that mentions one. This project handles that reply outside Bolna: it receives the reply, decides what it means, answers with a fixed template and alerts a person when needed.
+
+Bolna has a Callback node that lets an outside system resume a paused workflow. In principle a reply handler like this one could feed its result back through it. I did not test this. As I read the docs, the Callback node resumes an execution that is already waiting; it is not a trigger that starts one when a reply arrives. The gap I mean is the missing native reply trigger.
 
 **How I checked, and what I could not verify**
 - Checked: Bolna's [AiSensy integration page](https://www.bolna.ai/integrations/aisensy), its [Workflows introduction](https://www.bolna.ai/docs/workflows/introduction), and the node list in the workflow builder of a trial account on 28 October 2026.
-- Not verified: I did not read all of Bolna's documentation. The workflow builder is marked Beta and may change. Bolna's Callback node lets an outside system resume a paused workflow; this project does not use it, and I did not test whether it could carry a reply back into Bolna.
+- Not verified: I did not read all of Bolna's documentation. The workflow builder is marked Beta and may change. The Callback return path described above is untested.
 
 ## Demo
 
@@ -90,10 +92,11 @@ This is a hardened prototype: it handles the main path, common error cases and d
 
 - **Open Bolna webhook.** Bolna does not sign webhooks, and the WF1 URL accepts any POST. The terminal-status check, field validation and duplicate check reduce harm but are not authentication. A shared-secret header or caller-address check is not implemented.
 - **Reply matching is by phone number.** A reply is attached to that number's most recent call.
+- **No path back into Bolna.** WF2 answers the customer itself. It does not feed the result into a Bolna workflow. Bolna's Callback node is the natural route and is the obvious next step; it is untested.
 - **Opt-out is narrow.** It covers WhatsApp follow-ups from this prototype only, not Bolna calls, and it is not a compliance mechanism. The keyword list is English and Roman-script Hinglish, was not validated on real customers, misses Devanagari, and has one known false positive ("remove me from tomorrow's slot"). The failure paths of the opt-out steps were not tested live.
 - **Twilio sandbox constraints.** Free-form messages only within 24 hours of the customer's last message, rejoin every three days, and a message starting with "stop" disconnects the sandbox.
 - **Not observed.** `failed`, `canceled`, `stopped`, `error` and `balance-low` calls never occurred in testing, and Bolna's status filter does not offer them; whether those webhooks arrive is unverified. The `busy` result was seen once. The forged-signature rejection of the Twilio check was not recorded as tested.
-- **Small test set.** The classifier was checked on a handful of hand-written replies and the opt-out rules on 52 offline cases. No evaluation set, no prompt-injection test recorded.
+- **Small test set.** The classifier was checked on a handful of hand-written replies and the opt-out rules on a set of hand-written phrases during development (the cases are not committed). No evaluation set, no prompt-injection test recorded.
 - **Duplicate protection is check-then-write.** Two identical events at the same instant could both be processed; the unique keys prevent duplicate rows only. Not load-tested.
 - **Sent means accepted.** `whatsapp_sent = true` means Twilio accepted the message, not that it was delivered.
 - **No multi-tenancy, rate limiting or monitoring** beyond Slack alerts.

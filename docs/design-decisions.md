@@ -89,7 +89,7 @@ Each entry says what was decided, why, what the alternative was, and what the de
 
 ### 16. Detect opt-out with fixed keyword rules, before the model
 - **Decision:** a deterministic check (15 rules, English and Roman-script Hinglish) runs before classification. A match records the number, sends a fixed confirmation and alerts Slack.
-- **Why:** it is testable offline (52 cases), cannot be talked out of its behaviour by a message, and still works when the model call fails. The earlier design relied on the classifier returning ESCALATE; in that version the customer got an ordinary "a team member will get back to you" reply and the next follow-up still went out.
+- **Why:** it is testable offline (checked on hand-written phrases during development; the cases are not committed), cannot be talked out of its behaviour by a message, and still works when the model call fails. The earlier design relied on the classifier returning ESCALATE; in that version the customer got an ordinary "a team member will get back to you" reply and the next follow-up still went out.
 - **Cost:** rules are narrow. Devanagari-script opt-outs are not matched, the Hinglish list is unvalidated on real customers, and one false positive is known ("remove me from tomorrow's slot").
 
 ### 17. The opt-out lookup in WF1 fails closed
