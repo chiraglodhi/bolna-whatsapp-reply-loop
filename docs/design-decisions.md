@@ -64,7 +64,7 @@ Each entry says what was decided, why, what the alternative was, and what the de
 ### 11. Low confidence becomes ESCALATE
 - **Decision:** below a confidence of 0.6, the result is overridden to ESCALATE.
 - **Why:** a wrongly auto-handled reply is worse than a human looking at an uncertain one.
-- **Status:** the override has been tested offline only. Across the live replies the lowest confidence was 0.78, so it has never fired on real traffic. See the open question on the threshold value.
+- **Status:** the override has been tested offline only. Across the live replies the lowest confidence was 0.78, so it has never fired on real traffic.
 
 ### 12. Customers only ever receive fixed templates
 - **Decision:** the text sent to a customer is chosen from five fixed templates by the validated intent. The model's `suggested_reply` is stored for a human and never sent.

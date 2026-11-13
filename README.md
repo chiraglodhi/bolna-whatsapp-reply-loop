@@ -18,10 +18,6 @@ Bolna has a Callback node that lets an outside system resume a paused workflow. 
 - Checked: Bolna's [AiSensy integration page](https://www.bolna.ai/integrations/aisensy), its [Workflows introduction](https://www.bolna.ai/docs/workflows/introduction), and the node list in the workflow builder of a trial account on 28 October 2026.
 - Not verified: I did not read all of Bolna's documentation. The workflow builder is marked Beta and may change. The Callback return path described above is untested.
 
-## Demo
-
-*Recording to be added.*
-
 ## What it does
 
 ```
