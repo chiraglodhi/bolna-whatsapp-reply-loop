@@ -6,7 +6,7 @@ Catches a customer's WhatsApp reply to a post-call follow-up, works out what the
 
 ## Why I built this
 
-I'm Chirag, a self-taught AI generalist. I'm not a software engineer, but I'm good at orchestrating AI tools: connecting them and turning them into working workflows. I take Claude's help for the code and use its connectors and MCPs heavily. I also notice patterns in problems and build something that solves them. I studied how Bolna's post-call flow works and read its documentation. Bolna's WhatsApp step sends a message and moves on. In the docs and the workflow builder, I couldn't find a way for a customer's reply to start or continue a workflow, so I built one version of that outside Bolna. I built this as a hardened prototype, not a throwaway demo, to show how I spot a gap and close it, which is what a founder's office role needs. I'm looking for a founder's office role or an internship, and Bolna is the team I'm most interested in.
+I'm Chirag, a self-taught AI generalist. I'm not a software engineer, but I'm good at orchestrating AI tools: connecting them and turning them into working workflows. I take Claude's help for the code and use its connectors and MCPs heavily. I also notice patterns in problems and build something that solves them. I studied how Bolna's post-call flow works and read its documentation. Bolna's WhatsApp step sends a message and moves on. In the docs and the workflow builder, I couldn't find a way for a customer's reply to start or continue a workflow, so I built one version of that outside Bolna. It is a hardened prototype, not a throwaway demo, and it shows how I spot a gap and close it. I'm looking for a founder's office role or an internship, and Bolna is the team I'm most interested in.
 
 ## The gap
 
